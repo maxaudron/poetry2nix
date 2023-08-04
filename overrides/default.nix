@@ -2357,22 +2357,6 @@ lib.composeManyExtensions [
         }
       );
 
-      # Pybind11 is an undeclared dependency of scipy that we need to pick from nixpkgs
-      # Make it not fail with infinite recursion
-      pybind11 = super.pybind11.overridePythonAttrs (
-        old: {
-          cmakeFlags = (old.cmakeFlags or [ ]) ++ [
-            "-DPYBIND11_TEST=off"
-          ];
-          doCheck = false; # Circular test dependency
-
-          # Link include and share so it can be used by packages that use pybind11 through cmake
-          postInstall = ''
-            ln -s $out/${self.python.sitePackages}/pybind11/{include,share} $out/
-          '';
-        }
-      );
-
       rasterio = super.rasterio.overridePythonAttrs (old: {
         nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.gdal ];
       });
